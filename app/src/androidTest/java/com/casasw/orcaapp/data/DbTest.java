@@ -3,6 +3,7 @@ package com.casasw.orcaapp.data;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteQueryBuilder;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -25,7 +26,7 @@ public class DbTest {
     public static final String TAG = DbTest.class.getSimpleName();
 
     void deleteDatabase() {
-        InstrumentationRegistry.getContext().deleteDatabase(OrcaDbHelper.DATABASE_NAME);
+        InstrumentationRegistry.getTargetContext().deleteDatabase(OrcaDbHelper.DATABASE_NAME);
     }
 
     @Before
@@ -97,8 +98,9 @@ public class DbTest {
         //insertion
         ContentValues values = TestUtilities.createPersonValues();
         long in = db.insert(OrcaContract.PersonEntry.TABLE_NAME, null, values);
-        assertTrue("Error: Insertion in player table has fail.", in != -1 );
-        Cursor cursor = db.query(OrcaContract.PersonEntry.TABLE_NAME, null, null, null, null, null, null);
+        assertTrue("Error: Insertion in person table has fail.", in != -1 );
+        String selection = OrcaContract.PersonEntry.TABLE_NAME + "." + OrcaContract.PersonEntry._ID + " = ?";
+        Cursor cursor = db.query(OrcaContract.PersonEntry.TABLE_NAME, null,selection, new String[]{in+""}, null, null, null);
         assertTrue("Error: Person table select has fail.",
                 cursor.moveToFirst());
         TestUtilities.validateCurrentRecord(
@@ -126,13 +128,13 @@ public class DbTest {
 
         ContentValues values = TestUtilities.createPersonValues();
         values.put(OrcaContract.PersonEntry.COLUMN_PRO, "client");
-        db.insert(OrcaContract.PersonEntry.TABLE_NAME, null, values);
+        long inPerson = db.insert(OrcaContract.PersonEntry.TABLE_NAME, null, values);
         Cursor cursor = db.query(OrcaContract.PersonEntry.TABLE_NAME, null, null, null, null, null, null);
         cursor.moveToFirst();
 
-        values = TestUtilities.createBudgetValues(cursor.getLong(cursor.getColumnIndex(OrcaContract.PersonEntry._ID)));
+        values = TestUtilities.createBudgetValues(inPerson);
         long in = db.insert(OrcaContract.BudgetEntry.TABLE_NAME, null, values);
-        assertTrue("Error: Insertion in team table has fail.", in != -1 );
+        assertTrue("Error: Insertion in budget table has fail.", in != -1 );
         cursor = db.query(OrcaContract.BudgetEntry.TABLE_NAME, null, null, null, null, null, null);
         assertTrue("Error: Budget table select has fail.",
                 cursor.moveToFirst());
@@ -146,7 +148,7 @@ public class DbTest {
                 OrcaContract.BudgetEntry.TABLE_NAME +
                         "." + OrcaContract.BudgetEntry._ID + " = ?";
         int updates = db.update(OrcaContract.BudgetEntry.TABLE_NAME, values, sSelection, new String[]{""+in});
-        assertTrue("Error: Budget table update has fail.", updates>0);
+        assertTrue("Error: Budget table update has fail.", updates==1);
 
         //delete
         int del = db.delete(OrcaContract.BudgetEntry.TABLE_NAME, sSelection, new String[]{""+in});
@@ -163,7 +165,7 @@ public class DbTest {
         
         ContentValues values = TestUtilities.createClassValues();
         long inClass = db.insert(OrcaContract.ClassEntry.TABLE_NAME, null, values);
-        assertTrue("Error: Insertion in venue table has fail.", inClass != -1 );
+        assertTrue("Error: Insertion in class table has fail.", inClass != -1 );
 
         Cursor cursor = db.query(OrcaContract.ClassEntry.TABLE_NAME, null, null, null, null, null, null);
         assertTrue("Error: Class table select has fail.",
@@ -178,7 +180,7 @@ public class DbTest {
                 OrcaContract.ClassEntry.TABLE_NAME +
                         "." + OrcaContract.ClassEntry._ID + " = ?";
         int updates = db.update(OrcaContract.ClassEntry.TABLE_NAME, values, sSelection, new String[]{""+inClass});
-        assertTrue("Error: Class table update has fail.", updates>0);
+        assertTrue("Error: Class table update has fail.", updates==1);
 
         //delete
         int del = db.delete(OrcaContract.ClassEntry.TABLE_NAME, sSelection, new String[]{""+inClass});
@@ -194,14 +196,14 @@ public class DbTest {
 
         ContentValues values = TestUtilities.createClassValues();
         
-        db.insert(OrcaContract.ClassEntry.TABLE_NAME, null, values);
+        long inClass = db.insert(OrcaContract.ClassEntry.TABLE_NAME, null, values);
         Cursor cursor = db.query(OrcaContract.ClassEntry.TABLE_NAME, null, null, null, null, null, null);
         cursor.moveToFirst();
 
-        values = TestUtilities.createProductValues(cursor.getLong(cursor.getColumnIndex(OrcaContract.ClassEntry._ID)));
+        values = TestUtilities.createProductValues(inClass);
         
         long inProduct = db.insert(OrcaContract.ProductEntry.TABLE_NAME, null, values);
-        assertTrue("Error: Insertion in venue table has fail.", inProduct != -1 );
+        assertTrue("Error: Insertion in product table has fail.", inProduct != -1 );
 
         cursor = db.query(OrcaContract.ProductEntry.TABLE_NAME, null, null, null, null, null, null);
         assertTrue("Error: Product table select has fail.",
@@ -216,11 +218,41 @@ public class DbTest {
                 OrcaContract.ProductEntry.TABLE_NAME +
                         "." + OrcaContract.ProductEntry._ID + " = ?";
         int updates = db.update(OrcaContract.ProductEntry.TABLE_NAME, values, sSelection, new String[]{""+inProduct});
-        assertTrue("Error: Product table update has fail.", updates>0);
+        assertTrue("Error: Product table update has fail.", updates==1);
 
         //delete
         int del = db.delete(OrcaContract.ProductEntry.TABLE_NAME, sSelection, new String[]{""+inProduct});
         assertTrue("Error: Product table delete row has fail.", del==1);
+
+        cursor.close();
+        db.close();
+    }
+
+    @Test
+    public void testRoomTable(){
+        SQLiteDatabase db = new OrcaDbHelper(InstrumentationRegistry.getTargetContext()).getWritableDatabase();
+
+        ContentValues values = TestUtilities.createRoomValues();
+        long in = db.insert(OrcaContract.RoomEntry.TABLE_NAME, null, values);
+        assertTrue("Error: Insertion in room table has fail.", in != -1 );
+
+        Cursor cursor = db.query(OrcaContract.RoomEntry.TABLE_NAME, null, null, null, null, null, null);
+        assertTrue("Error: Room table select has fail.",
+                cursor.moveToFirst());
+        TestUtilities.validateCurrentRecord(
+                "Error: The returning cursor is not equals to ContentValues inserted.", cursor, values);
+
+        //update
+        values.put(OrcaContract.RoomEntry.COLUMN_NAME, "New Name");
+        String selection =
+                OrcaContract.RoomEntry.TABLE_NAME +
+                        "." + OrcaContract.RoomEntry._ID + " = ?";
+        int updates = db.update(OrcaContract.RoomEntry.TABLE_NAME, values, selection, new String[]{in+""});
+        assertTrue("Error: Room table update has fail.", updates==1);
+
+        //delete
+        int del = db.delete(OrcaContract.RoomEntry.TABLE_NAME, selection, new String[]{in+""});
+        assertTrue("Error: Room table delete row has fail.", del==1);
 
         cursor.close();
         db.close();
@@ -232,34 +264,29 @@ public class DbTest {
 
         ContentValues values = TestUtilities.createPersonValues();
         values.put(OrcaContract.PersonEntry.COLUMN_PRO, "client");
-        db.insert(OrcaContract.PersonEntry.TABLE_NAME, null, values);
-        Cursor cursor = db.query(OrcaContract.PersonEntry.TABLE_NAME, null, null, null, null, null, null);
-        cursor.moveToFirst();
+        long inPerson = db.insert(OrcaContract.PersonEntry.TABLE_NAME, null, values);
 
-        values = TestUtilities.createBudgetValues(cursor.getLong(cursor.getColumnIndex(OrcaContract.PersonEntry._ID)));
+        values = TestUtilities.createBudgetValues(inPerson);
         long inBudget = db.insert(OrcaContract.BudgetEntry.TABLE_NAME, null, values);
-        cursor = db.query(OrcaContract.BudgetEntry.TABLE_NAME, null, null, null, null, null, null);
-        cursor.moveToFirst();
-        inBudget = cursor.getLong(cursor.getColumnIndex(OrcaContract.BudgetEntry._ID));
 
         values = TestUtilities.createClassValues();
 
-        db.insert(OrcaContract.ClassEntry.TABLE_NAME, null, values);
-        cursor = db.query(OrcaContract.ClassEntry.TABLE_NAME, null, null, null, null, null, null);
-        cursor.moveToFirst();
+        long inClass = db.insert(OrcaContract.ClassEntry.TABLE_NAME, null, values);
 
-        values = TestUtilities.createProductValues(cursor.getLong(cursor.getColumnIndex(OrcaContract.ClassEntry._ID)));
+        values = TestUtilities.createProductValues(inClass);
 
         long inProduct = db.insert(OrcaContract.ProductEntry.TABLE_NAME, null, values);
-        cursor = db.query(OrcaContract.ProductEntry.TABLE_NAME, null, null, null, null, null, null);
-        cursor.moveToFirst();
-        inProduct = cursor.getColumnIndex(OrcaContract.ProductEntry._ID);
 
-        values = TestUtilities.createInputValues(inBudget, inProduct);
+        values = TestUtilities.createRoomValues();
+
+        long inRoom = db.insert(OrcaContract.RoomEntry.TABLE_NAME, null, values);
+
+
+        values = TestUtilities.createInputValues(inBudget, inProduct, inRoom);
         long inInput = db.insert(OrcaContract.InputEntry.TABLE_NAME, null, values);
-        assertTrue("Error: Insertion in match table has fail.", inInput != -1 );
+        assertTrue("Error: Insertion in input table has fail.", inInput != -1 );
 
-        cursor = db.query(OrcaContract.InputEntry.TABLE_NAME, null, null, null, null, null, null);
+        Cursor cursor = db.query(OrcaContract.InputEntry.TABLE_NAME, null, null, null, null, null, null);
         assertTrue("Error: Input table select has fail.",
                 cursor.moveToFirst());
 
@@ -272,11 +299,115 @@ public class DbTest {
                 OrcaContract.InputEntry.TABLE_NAME +
                         "." + OrcaContract.InputEntry._ID + " = ?";
         int updates = db.update(OrcaContract.InputEntry.TABLE_NAME, values, sSelection, new String[]{""+inInput});
-        assertTrue("Error: Input table update has fail.", updates>0);
+        assertTrue("Error: Input table update has fail.", updates==1);
 
         //delete
         int del = db.delete(OrcaContract.InputEntry.TABLE_NAME, sSelection, new String[]{""+inInput});
         assertTrue("Error: Input table delete row has fail.", del==1);
+
+        cursor.close();
+        db.close();
+    }
+
+    @Test
+    public void testInnerJoin() {
+        SQLiteDatabase db = new OrcaDbHelper(InstrumentationRegistry.getTargetContext()).getWritableDatabase();
+
+        ContentValues values = TestUtilities.createPersonValues();
+        long inPerson = db.insert(OrcaContract.PersonEntry.TABLE_NAME, null, values);
+
+        values = TestUtilities.createBudgetValues(inPerson);
+        long inBudget = db.insert(OrcaContract.BudgetEntry.TABLE_NAME, null, values);
+
+        values = TestUtilities.createClassValues();
+        long inClass = db.insert(OrcaContract.ClassEntry.TABLE_NAME, null, values);
+
+        values = TestUtilities.createProductValues(inClass);
+        long inProduct = db.insert(OrcaContract.ProductEntry.TABLE_NAME, null, values);
+
+        values = TestUtilities.createRoomValues();
+        long inRoom = db.insert(OrcaContract.RoomEntry.TABLE_NAME, null, values);
+
+        values = TestUtilities.createInputValues(inBudget, inProduct, inRoom);
+        long inInput = db.insert(OrcaContract.InputEntry.TABLE_NAME, null, values);
+
+        SQLiteQueryBuilder sProductQueryBuild = new SQLiteQueryBuilder();
+        sProductQueryBuild.setTables(
+                OrcaContract.ProductEntry.TABLE_NAME + " INNER JOIN " +
+                        OrcaContract.ClassEntry.TABLE_NAME +
+                        " ON " + OrcaContract.ProductEntry.TABLE_NAME +
+                        "." + OrcaContract.ProductEntry.COLUMN_CLASS_ID +
+                        " = " + OrcaContract.ClassEntry.TABLE_NAME +
+                        "." + OrcaContract.ClassEntry._ID
+        );
+        String selection = OrcaContract.ProductEntry.TABLE_NAME +
+                "." + OrcaContract.ProductEntry.COLUMN_CLASS_ID + " = ? ";
+        String[] selectionArgs = new String[]{""+inClass};
+        Cursor cursor = sProductQueryBuild.query(
+                        db, TestUtilities.PRODUCT_CLASS_COLUMNS, selection, selectionArgs,
+                        null, null, null );
+        assertTrue("Error: Product-Class inner join is returning no data.", cursor.moveToFirst());
+        TestUtilities.logCursor(cursor, TAG);
+
+        SQLiteQueryBuilder sBudgetPersonQueryBuild = new SQLiteQueryBuilder();
+        sBudgetPersonQueryBuild.setTables(
+                OrcaContract.BudgetEntry.TABLE_NAME + " INNER JOIN " +
+                        OrcaContract.PersonEntry.TABLE_NAME +
+                        " ON " + OrcaContract.BudgetEntry.TABLE_NAME +
+                        "." + OrcaContract.BudgetEntry.COLUMN_CLIENT_ID +
+                        " = " + OrcaContract.PersonEntry.TABLE_NAME +
+                        "." + OrcaContract.PersonEntry._ID
+        );
+        selection = OrcaContract.BudgetEntry.TABLE_NAME +
+                "." + OrcaContract.BudgetEntry._ID + " = ? ";
+        selectionArgs = new String[]{""+inBudget};
+        cursor = sBudgetPersonQueryBuild.query(
+                        db, TestUtilities.BUDGET_PERSON_COLUMNS, selection, selectionArgs,
+                        null, null, null);
+        assertTrue("Error: Budget-Person inner join is returning no data.", cursor.moveToFirst());
+        TestUtilities.logCursor(cursor, TAG);
+
+        SQLiteQueryBuilder sBudgetInputRoom = new SQLiteQueryBuilder();
+        sBudgetInputRoom.setTables(
+                OrcaContract.BudgetEntry.TABLE_NAME + " INNER JOIN " +
+                        OrcaContract.InputEntry.TABLE_NAME +
+                        " ON " + OrcaContract.BudgetEntry.TABLE_NAME +
+                        "." + OrcaContract.BudgetEntry._ID +
+                        " = " + OrcaContract.InputEntry.TABLE_NAME +
+                        "." + OrcaContract.InputEntry.COLUMN_BUDGET_ID +
+                        " INNER JOIN " +
+                        OrcaContract.RoomEntry.TABLE_NAME +
+                        " ON " + OrcaContract.RoomEntry.TABLE_NAME +
+                        "." + OrcaContract.RoomEntry._ID +
+                        " = " + OrcaContract.InputEntry.COLUMN_ROOM_ID
+        );
+        cursor = sBudgetInputRoom.query(
+                db, TestUtilities.BUDGET_INPUT_ROOM, selection, selectionArgs,
+                null, null, null
+        );
+        assertTrue("Error: Budget-Input-Room inner join is returning no data.", cursor.moveToFirst());
+        TestUtilities.logCursor(cursor, TAG);
+
+        SQLiteQueryBuilder sBudgetInputProduct = new SQLiteQueryBuilder();
+        sBudgetInputProduct.setTables(
+                OrcaContract.BudgetEntry.TABLE_NAME + " INNER JOIN " +
+                        OrcaContract.InputEntry.TABLE_NAME +
+                        " ON " + OrcaContract.BudgetEntry.TABLE_NAME +
+                        "." + OrcaContract.BudgetEntry._ID +
+                        " = " + OrcaContract.InputEntry.TABLE_NAME +
+                        "." + OrcaContract.InputEntry.COLUMN_BUDGET_ID +
+                        " INNER JOIN " +
+                        OrcaContract.ProductEntry.TABLE_NAME +
+                        " ON " + OrcaContract.ProductEntry.TABLE_NAME +
+                        "." + OrcaContract.ProductEntry._ID +
+                        " = " + OrcaContract.InputEntry.COLUMN_PRODUCT_ID
+        );
+        cursor = sBudgetInputProduct.query(
+                db, TestUtilities.BUDGET_INPUT_PRODUCT, selection, selectionArgs,
+                null, null, null
+        );
+        assertTrue("Error: Budget-Input-Product inner join is returning no data.", cursor.moveToFirst());
+        TestUtilities.logCursor(cursor, TAG);
 
         cursor.close();
         db.close();

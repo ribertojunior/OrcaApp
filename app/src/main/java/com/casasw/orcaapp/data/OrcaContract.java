@@ -20,6 +20,7 @@ public class OrcaContract {
     static final String PATH_PRODUCT = "product";
     static final String PATH_CLASS = "class";
     static final String PATH_INPUT = "input";
+    static final String PATH_ROOM = "room";
 
     /**
     * Inner class for person table
@@ -70,7 +71,7 @@ public class OrcaContract {
         static final String CONTENT_ITEM_TYPE =
                 ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_BUDGET;
 
-        static Uri buildPersonUri(long id) {
+        static Uri buildBudgetUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
 
@@ -103,7 +104,7 @@ public class OrcaContract {
         static final String CONTENT_ITEM_TYPE =
                 ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_PRODUCT;
 
-        static Uri buildPersonUri(long id) {
+        static Uri buildProductUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
 
@@ -138,7 +139,7 @@ public class OrcaContract {
         static final String CONTENT_ITEM_TYPE =
                 ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_CLASS;
 
-        static Uri buildPersonUri(long id) {
+        static Uri buildClassUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
 
@@ -165,7 +166,7 @@ public class OrcaContract {
         static final String CONTENT_ITEM_TYPE =
                 ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_INPUT;
 
-        static Uri buildPersonUri(long id) {
+        static Uri buildInputUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
 
@@ -179,7 +180,39 @@ public class OrcaContract {
 
         static final String COLUMN_PRODUCT_ID = "product_id";
 
+        static final String COLUMN_ROOM_ID = "room_id";
+
         static final String COLUMN_QUANTITY = "quantity";
+
+    }
+
+    /**
+     * Inner class for Room table
+     **/
+    static final class RoomEntry implements BaseColumns {
+        static final Uri CONTENT_URI =
+                BASE_CONTENT_URI.buildUpon().appendPath(PATH_ROOM).build();
+
+        static final String CONTENT_TYPE =
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + PATH_ROOM;
+
+        static final String CONTENT_ITEM_TYPE =
+                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_ROOM;
+
+        static Uri buildRoomUri(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
+
+        static String getIdFromUri(Uri uri) {
+            return uri.getPathSegments().get(uri.getPathSegments().size()-1);
+        }
+
+        static final String TABLE_NAME = "room";
+
+        static final String COLUMN_NAME = "name";
+
+        static final String COLUMN_DESC = "desc";
+
 
     }
 

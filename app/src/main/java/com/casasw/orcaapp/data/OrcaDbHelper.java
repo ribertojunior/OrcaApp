@@ -82,16 +82,29 @@ class OrcaDbHelper  extends SQLiteOpenHelper{
                 OrcaContract.InputEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                 OrcaContract.InputEntry.COLUMN_BUDGET_ID + " INTEGER NOT NULL, " +
                 OrcaContract.InputEntry.COLUMN_PRODUCT_ID + " INTEGER NOT NULL, " +
+                OrcaContract.InputEntry.COLUMN_ROOM_ID + " INTEGER NOT NULL, " +
                 OrcaContract.InputEntry.COLUMN_QUANTITY + " REAL NOT NULL, " +
                 "FOREIGN KEY ("+ OrcaContract.InputEntry.COLUMN_BUDGET_ID +") REFERENCES " +
                 OrcaContract.BudgetEntry.TABLE_NAME + " (" + OrcaContract.BudgetEntry._ID + "), " +
                 "FOREIGN KEY ("+ OrcaContract.InputEntry.COLUMN_PRODUCT_ID +") REFERENCES " +
-                OrcaContract.ProductEntry.TABLE_NAME + " (" + OrcaContract.ProductEntry._ID + ") );";
+                OrcaContract.ProductEntry.TABLE_NAME + " (" + OrcaContract.ProductEntry._ID + "), " +
+                "FOREIGN KEY ("+ OrcaContract.InputEntry.COLUMN_ROOM_ID +") REFERENCES " +
+                OrcaContract.RoomEntry.TABLE_NAME + " (" + OrcaContract.RoomEntry._ID + ") );";
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "onCreate: input table: \n"+SQL_CREATE_INPUT_TABLE);
         }
 
         sqLiteDatabase.execSQL(SQL_CREATE_INPUT_TABLE);
+
+        final String SQL_CREATE_ROOM_TABLE = "CREATE TABLE " + OrcaContract.RoomEntry.TABLE_NAME + " (" +
+                OrcaContract.RoomEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                OrcaContract.RoomEntry.COLUMN_NAME + " TEXT NOT NULL, " +
+                OrcaContract.RoomEntry.COLUMN_DESC+ " TEXT NOT NULL );";
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "onCreate: room table: \n"+SQL_CREATE_ROOM_TABLE);
+        }
+
+        sqLiteDatabase.execSQL(SQL_CREATE_ROOM_TABLE);
 
     }
 
@@ -102,6 +115,16 @@ class OrcaDbHelper  extends SQLiteOpenHelper{
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + OrcaContract.ProductEntry.TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + OrcaContract.ClassEntry.TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + OrcaContract.InputEntry.TABLE_NAME);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + OrcaContract.RoomEntry.TABLE_NAME);
         onCreate(sqLiteDatabase);
+    }
+
+    @Override
+    public void onOpen(SQLiteDatabase db) {
+        super.onOpen(db);
+        if (!db.isReadOnly()) {
+            // Enable foreign key constraints
+            db.execSQL("PRAGMA foreign_keys=ON;");
+        }
     }
 }

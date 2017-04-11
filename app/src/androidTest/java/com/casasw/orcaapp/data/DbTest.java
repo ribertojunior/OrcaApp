@@ -23,9 +23,9 @@ import static junit.framework.Assert.assertTrue;
 @RunWith(AndroidJUnit4.class)
 public class DbTest {
 
-    public static final String TAG = DbTest.class.getSimpleName();
+    private static final String TAG = DbTest.class.getSimpleName();
 
-    void deleteDatabase() {
+    private void deleteDatabase() {
         InstrumentationRegistry.getTargetContext().deleteDatabase(OrcaDbHelper.DATABASE_NAME);
     }
 
@@ -36,7 +36,7 @@ public class DbTest {
 
     @Test
     public void testCreateDb() throws Throwable {
-        final HashSet<String> tableNameHashSet = new HashSet<String>();
+        final HashSet<String> tableNameHashSet = new HashSet<>();
         tableNameHashSet.add(OrcaContract.PersonEntry.TABLE_NAME);
         tableNameHashSet.add(OrcaContract.BudgetEntry.TABLE_NAME);
         tableNameHashSet.add(OrcaContract.ProductEntry.TABLE_NAME);
@@ -67,7 +67,7 @@ public class DbTest {
         assertTrue("Error: This means that we were unable to query the database for table information.",
                 c.moveToFirst());
 
-        final HashSet<String> columnHashSet = new HashSet<String>();
+        final HashSet<String> columnHashSet = new HashSet<>();
         columnHashSet.add(OrcaContract.PersonEntry._ID);
         columnHashSet.add(OrcaContract.PersonEntry.COLUMN_NAME);
         columnHashSet.add(OrcaContract.PersonEntry.COLUMN_PHONE);
@@ -329,7 +329,7 @@ public class DbTest {
         long inRoom = db.insert(OrcaContract.RoomEntry.TABLE_NAME, null, values);
 
         values = TestUtilities.createInputValues(inBudget, inProduct, inRoom);
-        long inInput = db.insert(OrcaContract.InputEntry.TABLE_NAME, null, values);
+        db.insert(OrcaContract.InputEntry.TABLE_NAME, null, values);
 
         SQLiteQueryBuilder sProductQueryBuild = new SQLiteQueryBuilder();
         sProductQueryBuild.setTables(

@@ -10,9 +10,9 @@ import android.provider.BaseColumns;
  * Defines Db
  */
 
-public class OrcaContract {
+class OrcaContract {
     static final String CONTENT_AUTHORITY = "com.casasw.sportclub";
-    static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
+    private static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
     static final String PATH_PERSON = "person";
     //static final String PATH_USER = "user";

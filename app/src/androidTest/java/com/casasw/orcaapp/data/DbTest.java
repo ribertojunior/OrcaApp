@@ -331,8 +331,8 @@ public class DbTest {
         values = TestUtilities.createInputValues(inBudget, inProduct, inRoom);
         db.insert(OrcaContract.InputEntry.TABLE_NAME, null, values);
 
-        SQLiteQueryBuilder sProductQueryBuild = new SQLiteQueryBuilder();
-        sProductQueryBuild.setTables(
+        SQLiteQueryBuilder sProductQueryBuilder = new SQLiteQueryBuilder();
+        sProductQueryBuilder.setTables(
                 OrcaContract.ProductEntry.TABLE_NAME + " INNER JOIN " +
                         OrcaContract.ClassEntry.TABLE_NAME +
                         " ON " + OrcaContract.ProductEntry.TABLE_NAME +
@@ -343,14 +343,14 @@ public class DbTest {
         String selection = OrcaContract.ProductEntry.TABLE_NAME +
                 "." + OrcaContract.ProductEntry.COLUMN_CLASS_ID + " = ? ";
         String[] selectionArgs = new String[]{""+inClass};
-        Cursor cursor = sProductQueryBuild.query(
+        Cursor cursor = sProductQueryBuilder.query(
                         db, TestUtilities.PRODUCT_CLASS_COLUMNS, selection, selectionArgs,
                         null, null, null );
         assertTrue("Error: Product-Class inner join is returning no data.", cursor.moveToFirst());
         TestUtilities.logCursor(cursor, TAG);
 
-        SQLiteQueryBuilder sBudgetPersonQueryBuild = new SQLiteQueryBuilder();
-        sBudgetPersonQueryBuild.setTables(
+        SQLiteQueryBuilder sBudgetPersonQueryBuilder = new SQLiteQueryBuilder();
+        sBudgetPersonQueryBuilder.setTables(
                 OrcaContract.BudgetEntry.TABLE_NAME + " INNER JOIN " +
                         OrcaContract.PersonEntry.TABLE_NAME +
                         " ON " + OrcaContract.BudgetEntry.TABLE_NAME +
@@ -361,7 +361,7 @@ public class DbTest {
         selection = OrcaContract.BudgetEntry.TABLE_NAME +
                 "." + OrcaContract.BudgetEntry._ID + " = ? ";
         selectionArgs = new String[]{""+inBudget};
-        cursor = sBudgetPersonQueryBuild.query(
+        cursor = sBudgetPersonQueryBuilder.query(
                         db, TestUtilities.BUDGET_PERSON_COLUMNS, selection, selectionArgs,
                         null, null, null);
         assertTrue("Error: Budget-Person inner join is returning no data.", cursor.moveToFirst());

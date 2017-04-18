@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="facebook_button_margin">30dp</dimen>
+    <dimen name="help_text_padding">8dp</dimen>
+    <dimen name="ver_padding_botton">16dp</dimen>
+    <dimen name="login_button_height">33dp</dimen>
+    <dimen name="google_button_width">207dp</dimen>
+</resources>

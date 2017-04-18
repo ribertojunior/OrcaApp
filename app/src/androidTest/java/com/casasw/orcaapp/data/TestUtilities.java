@@ -71,8 +71,8 @@ public class TestUtilities {
         }
         String values = "";
         do {
-            for (int i =0;i<c.getColumnCount();i++) {
-                values =  values + c.getString(i) +" - ";
+            for (int j =0;j<c.getColumnCount();j++) {
+                values =  values + c.getString(j) +" - ";
             }
             values = values + "\n";
 

@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">OrcaApp</string>
+    <string name="app_name">Orca App</string>
+    <string name="help_text_view">Ajuda</string>
+    <string name="facebook_app_id">804042803084507</string>
 </resources>

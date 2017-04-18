@@ -32,7 +32,7 @@ public class OrcaProvider extends ContentProvider {
         isTest = true;
     }
 
-    //edn of test methods
+    //end of test methods
 
     private OrcaDbHelper mOpenHelper;
 
